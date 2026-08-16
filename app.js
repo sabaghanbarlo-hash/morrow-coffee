@@ -1,9 +1,15 @@
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const {
   useState,
   useEffect,
   useRef,
   useCallback
 } = React;
+
+/* ------------------------------------------------------------------ */
+/*  Content / data                                                     */
+/* ------------------------------------------------------------------ */
+
 const NAV_LINKS = [{
   id: "home",
   label: "Home"
@@ -26,54 +32,38 @@ const MENU_CATEGORIES = [{
     desc: "Single origin, pulled short and bright.",
     price: "£2.80"
   }, {
-    name: "Piccolo",
-    desc: "A small, concentrated flat white for those who like it strong.",
-    price: "£3.00"
-  }, {
     name: "Flat White",
-    desc: "Double ristretto with steamed milk — no froth theatrics.",
-    price: "£3.40"
+    desc: "Double ristretto with silky steamed milk.",
+    price: "£3.60"
   }, {
     name: "Cortado",
     desc: "Equal parts espresso and warm milk, Spanish-style.",
-    price: "£3.20"
+    price: "£3.40"
   }]
 }, {
   id: "filter",
-  label: "Filter Coffee",
-  note: "One fresh single origin on rotation every two weeks.",
+  label: "Filter",
+  note: "Brewed fresh, one cup or one pot at a time.",
   items: [{
-    name: "V60 Pour Over",
+    name: "House Filter",
+    desc: "Our everyday blend, filtered fresh every thirty minutes.",
+    price: "£3.50"
+  }, {
+    name: "Single Origin",
     desc: "Rotating single origin, brewed to order with a tasting note card.",
-    price: "£3.80"
-  }, {
-    name: "Batch Brew",
-    desc: "Our house blend, filtered fresh every thirty minutes.",
-    price: "£2.90"
-  }, {
-    name: "Aeropress",
-    desc: "Clean and full-bodied, brewed one cup at a time.",
-    price: "£3.60"
-  }, {
-    name: "Cold Brew",
-    desc: "Steeped for eighteen hours, served long over ice.",
-    price: "£3.90"
+    price: "£4.20"
   }]
 }, {
   id: "matcha",
   label: "Matcha",
-  note: "Ceremonial grade, whisked by hand, no powder mixes.",
+  note: "Ceremonial grade, whisked by hand.",
   items: [{
-    name: "Matcha Latte",
-    desc: "Ceremonial grade, whisked to order and lightly sweetened.",
-    price: "£4.00"
-  }, {
-    name: "Iced Matcha Latte",
-    desc: "The same, over ice, with oat milk as standard.",
+    name: "Classic Matcha",
+    desc: "Whisked to order and lightly sweetened.",
     price: "£4.20"
   }, {
-    name: "Strawberry Matcha",
-    desc: "Fresh strawberry purée layered under whisked matcha.",
+    name: "Iced Matcha",
+    desc: "The same, over ice, with oat milk as standard.",
     price: "£4.50"
   }]
 }, {
@@ -81,50 +71,42 @@ const MENU_CATEGORIES = [{
   label: "Pastries",
   note: "Delivered each morning from Rye Bakery, two streets over.",
   items: [{
-    name: "Pain au Chocolat",
-    desc: "Baked each morning by our neighbours at Rye Bakery.",
+    name: "Butter Croissant",
+    desc: "Laminated dough, baked until deeply golden.",
     price: "£3.20"
+  }, {
+    name: "Cinnamon Bun",
+    desc: "Slow-proved and glazed while still warm.",
+    price: "£3.80"
   }, {
     name: "Almond Croissant",
     desc: "Twice-baked and filled with frangipane.",
-    price: "£3.60"
-  }, {
-    name: "Morning Bun",
-    desc: "Cinnamon-orange laminated dough, coiled and glazed.",
-    price: "£3.40"
-  }, {
-    name: "Sourdough Toast",
-    desc: "Two thick slices, cultured butter, seasonal jam.",
-    price: "£4.80"
+    price: "£3.90"
   }]
 }, {
   id: "seasonal",
-  label: "Seasonal Drinks",
+  label: "Seasonal",
   note: "Changing with the season — this is what's pouring now.",
   items: [{
-    name: "Peach & Thyme Cold Brew",
-    desc: "Cold brew muddled with peach, torn thyme and soda.",
-    price: "£4.30"
+    name: "Morrow Latte",
+    desc: "Espresso, steamed milk and a subtle seasonal sweetness.",
+    price: "£4.80"
   }, {
-    name: "Basil Lime Cooler",
-    desc: "No coffee here — fresh basil, lime and soda over ice.",
-    price: "£3.90"
-  }, {
-    name: "Iced Honey Oat Latte",
-    desc: "Wildflower honey and oat milk, dusted with cinnamon.",
-    price: "£4.10"
+    name: "Seasonal Cold Brew",
+    desc: "Cold brew finished with a rotating seasonal note.",
+    price: "£4.50"
   }]
 }];
 const TESTIMONIALS = [{
-  quote: "I stop in most mornings on my way to the studio. It's the only coffee near here that doesn't try to rush you out the door.",
+  quote: "Beautiful coffee, thoughtful service, and exactly the kind of place you want to spend a slow Saturday morning.",
   name: "Priya N.",
   meta: "Local designer, Shoreditch"
 }, {
-  quote: "The pour-over rotation is genuinely worth paying attention to. Ask whoever's on bar what they're excited about that week — they'll always tell you.",
+  quote: "One of the best flat whites I've had in London. The space is just as good as the coffee.",
   name: "Tom H.",
   meta: "Regular since 2023"
 }, {
-  quote: "Brought my whole team here for a Friday catch-up and they remembered our order the second time round. Small things, but they add up.",
+  quote: "Quiet, warm, and beautifully designed. Morrow has quickly become my favourite neighbourhood café.",
   name: "Aisha K.",
   meta: "Product manager"
 }];
@@ -153,13 +135,34 @@ const GALLERY_IMAGES = [{
   alt: "Close-up detail of coffee beans in a roasting scoop",
   span: "tall"
 }];
-const PHONE_DISPLAY = "020 7946 0958";
-const PHONE_TEL = "+442079460958";
-const EMAIL = "hello@morrowcoffee.co.uk";
+const PROCESS_STEPS = [{
+  num: "01",
+  title: "Sourced",
+  desc: "Carefully selected specialty beans from responsible producers we know by name."
+}, {
+  num: "02",
+  title: "Roasted",
+  desc: "Roasted in small batches to highlight the natural character of each coffee."
+}, {
+  num: "03",
+  title: "Brewed",
+  desc: "Prepared with precision, patience, and attention to detail, cup by cup."
+}];
+const ABOUT_DETAILS = ["Small batch", "Seasonal menu", "Independent"];
+const PHONE_DISPLAY = "+44 20 0000 0000";
+const PHONE_TEL = "+442000000000";
+const EMAIL = "hello@morrowncoffee.example";
 const ADDRESS_LINE1 = "18 Willow Street";
-const ADDRESS_LINE2 = "London, EC2A 4BH";
+const ADDRESS_LINE2 = "London, UK";
 const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=18+Willow+Street+London";
-const INSTAGRAM_URL = "https://instagram.com/morrowcoffee";
+const INSTAGRAM_URL = "https://instagram.com/morrowncoffee";
+const INSTAGRAM_HANDLE = "@morrowncoffee";
+const SITE_URL = "https://sabaghanbarlo-hash.github.io/morrow-coffee/";
+
+/* ------------------------------------------------------------------ */
+/*  Utilities                                                          */
+/* ------------------------------------------------------------------ */
+
 function prefersReducedMotion() {
   if (typeof window === "undefined" || !window.matchMedia) return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -168,7 +171,8 @@ function Reveal({
   children,
   as: Tag = "div",
   className = "",
-  delay = 0
+  delay = 0,
+  ...rest
 }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -193,13 +197,13 @@ function Reveal({
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-  return /*#__PURE__*/React.createElement(Tag, {
+  return /*#__PURE__*/React.createElement(Tag, _extends({
     ref: ref,
     className: `reveal ${visible ? "is-visible" : ""} ${className}`,
     style: {
       transitionDelay: visible ? `${delay}ms` : "0ms"
     }
-  }, children);
+  }, rest), children);
 }
 function Header({
   scrolled,
@@ -240,8 +244,10 @@ function Header({
     className: `hamburger ${mobileOpen ? "is-open" : ""}`,
     "aria-label": mobileOpen ? "Close menu" : "Open menu",
     "aria-expanded": mobileOpen,
+    "aria-controls": "mobile-nav",
     onClick: onToggleMobile
   }, /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("span", null)))), /*#__PURE__*/React.createElement("div", {
+    id: "mobile-nav",
     className: `mobile-nav ${mobileOpen ? "is-open" : ""}`,
     "aria-hidden": !mobileOpen
   }, /*#__PURE__*/React.createElement("nav", {
@@ -249,6 +255,7 @@ function Header({
   }, NAV_LINKS.map(link => /*#__PURE__*/React.createElement("a", {
     key: link.id,
     href: `#${link.id}`,
+    tabIndex: mobileOpen ? 0 : -1,
     onClick: e => {
       e.preventDefault();
       onNavigate(link.id);
@@ -256,6 +263,7 @@ function Header({
   }, link.label))), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-primary",
+    tabIndex: mobileOpen ? 0 : -1,
     onClick: () => {
       onToggleMobile();
       onOrderClick();
@@ -281,7 +289,7 @@ function Hero({
     className: "eyebrow eyebrow-light"
   }, "Willow Street, London"), /*#__PURE__*/React.createElement("h1", null, "Good coffee.", /*#__PURE__*/React.createElement("br", null), "Slow mornings."), /*#__PURE__*/React.createElement("p", {
     className: "hero-lede"
-  }, "Morrow is a small specialty coffee shop serving carefully sourced beans and simple seasonal food. No queues to rush through, no orders shouted across the room \u2014 just a good cup, made properly, and a place to sit with it."), /*#__PURE__*/React.createElement("div", {
+  }, "Specialty coffee, seasonal food, and slow mornings in the heart of London."), /*#__PURE__*/React.createElement("div", {
     className: "hero-actions"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -299,6 +307,16 @@ function Hero({
   }, /*#__PURE__*/React.createElement("span", {
     className: "scroll-cue-line"
   })));
+}
+function BrandStatement() {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "brand-statement",
+    "aria-labelledby": "brand-statement-heading"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "container brand-statement-inner"
+  }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("h2", {
+    id: "brand-statement-heading"
+  }, "Coffee worth slowing down for."), /*#__PURE__*/React.createElement("p", null, "We source carefully, prepare thoughtfully, and let the season decide what's on the board. It's a small, calm room on a quiet London street \u2014 the kind of place built for a coffee you actually sit down with."))));
 }
 function FeaturedMenu({
   onOrder
@@ -325,7 +343,9 @@ function FeaturedMenu({
     key: cat.id,
     type: "button",
     role: "tab",
+    id: `tab-${cat.id}`,
     "aria-selected": cat.id === activeId,
+    "aria-controls": `panel-${cat.id}`,
     className: `menu-tab ${cat.id === activeId ? "is-active" : ""}`,
     onClick: () => setActiveId(cat.id)
   }, cat.label)))), /*#__PURE__*/React.createElement(Reveal, {
@@ -335,7 +355,9 @@ function FeaturedMenu({
     className: "menu-note"
   }, active.note), /*#__PURE__*/React.createElement("div", {
     className: "menu-list",
-    role: "tabpanel"
+    role: "tabpanel",
+    id: `panel-${active.id}`,
+    "aria-labelledby": `tab-${active.id}`
   }, active.items.map(item => /*#__PURE__*/React.createElement("div", {
     className: "menu-row",
     key: item.name
@@ -372,7 +394,32 @@ function About() {
     className: "eyebrow"
   }, "About Morrow"), /*#__PURE__*/React.createElement("h2", {
     id: "about-heading"
-  }, "Coffee shouldn't be rushed"), /*#__PURE__*/React.createElement("p", null, "We buy directly from importers who work season to season with small farms in Ethiopia, Colombia and Rwanda, and we roast in small batches with a partner roastery in Hackney. Every bag on our shelf has a name, a farm and a story we can tell you if you ask."), /*#__PURE__*/React.createElement("p", null, "But sourcing is only half of it. Morrow exists because we think mornings are worth protecting \u2014 a few quiet minutes before the day gets loud. That's why there's no drive-through, no loyalty app buzzing on your phone. Just a counter, a bar, and people who care about what's in the cup."), /*#__PURE__*/React.createElement("p", null, "The food follows the same idea: simple, seasonal, made by people we know. Pastries from the bakery down the road, toast from a loaf we can trace back to the mill. Nothing on the menu is trying to be clever."))));
+  }, "Made for slow mornings."), /*#__PURE__*/React.createElement("p", null, "Morrow started with a simple idea: coffee shouldn't be rushed. We work closely with a small roaster to source beans we trust, build the food menu around what's in season, and keep the room quiet enough that you'll actually want to stay for a second cup."), /*#__PURE__*/React.createElement("ul", {
+    className: "about-detail-list"
+  }, ABOUT_DETAILS.map(d => /*#__PURE__*/React.createElement("li", {
+    key: d
+  }, d))))));
+}
+function OurCoffee() {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "process",
+    "aria-labelledby": "process-heading"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "container"
+  }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, "Our Coffee"), /*#__PURE__*/React.createElement("h2", {
+    id: "process-heading"
+  }, "From origin to cup.")), /*#__PURE__*/React.createElement("div", {
+    className: "process-grid"
+  }, PROCESS_STEPS.map((step, i) => /*#__PURE__*/React.createElement(Reveal, {
+    as: "div",
+    key: step.num,
+    delay: i * 100,
+    className: "process-step"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "process-num"
+  }, step.num), /*#__PURE__*/React.createElement("h3", null, step.title), /*#__PURE__*/React.createElement("p", null, step.desc))))));
 }
 function SignatureDrink({
   onOrder
@@ -389,15 +436,15 @@ function SignatureDrink({
     className: "eyebrow eyebrow-light"
   }, "The Signature"), /*#__PURE__*/React.createElement("h2", {
     id: "signature-heading"
-  }, "The Morrow Latte"), /*#__PURE__*/React.createElement("p", null, "Espresso, steamed oat milk, a whisper of brown sugar and cardamom, finished with a dusting of cocoa. It's the drink we built the shop around \u2014 the one regulars order without looking at the board."), /*#__PURE__*/React.createElement("div", {
+  }, "The Morrow Latte"), /*#__PURE__*/React.createElement("p", null, "Our signature espresso drink with silky steamed milk and a subtle seasonal sweetness. It's the drink we built the shop around \u2014 the one regulars order without looking at the board."), /*#__PURE__*/React.createElement("div", {
     className: "signature-price-row"
   }, /*#__PURE__*/React.createElement("span", {
     className: "signature-price"
-  }, "\xA34.50"), /*#__PURE__*/React.createElement("button", {
+  }, "\xA34.80"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-light",
     onClick: () => onOrder("Morrow Latte")
-  }, "Add to Order"))), /*#__PURE__*/React.createElement(Reveal, {
+  }, "Discover Morrow Latte"))), /*#__PURE__*/React.createElement(Reveal, {
     as: "div",
     delay: 120,
     className: "signature-media"
@@ -439,7 +486,7 @@ function Testimonials() {
     className: "eyebrow"
   }, "Word of Mouth"), /*#__PURE__*/React.createElement("h2", {
     id: "testimonials-heading"
-  }, "What people tell us")), /*#__PURE__*/React.createElement("div", {
+  }, "Good things people say.")), /*#__PURE__*/React.createElement("div", {
     className: "testimonial-grid"
   }, TESTIMONIALS.map((t, i) => /*#__PURE__*/React.createElement(Reveal, {
     as: "figure",
@@ -451,6 +498,37 @@ function Testimonials() {
   }, t.name), /*#__PURE__*/React.createElement("span", {
     className: "testimonial-meta"
   }, t.meta)))))));
+}
+function InstagramSection() {
+  const images = GALLERY_IMAGES.slice(0, 4);
+  return /*#__PURE__*/React.createElement("section", {
+    className: "social",
+    "aria-labelledby": "social-heading"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "container"
+  }, /*#__PURE__*/React.createElement(Reveal, {
+    className: "social-header"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, "Follow Along"), /*#__PURE__*/React.createElement("h2", {
+    id: "social-heading"
+  }, INSTAGRAM_HANDLE)), /*#__PURE__*/React.createElement("a", {
+    className: "btn btn-secondary",
+    href: INSTAGRAM_URL,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  }, "Follow on Instagram")), /*#__PURE__*/React.createElement("div", {
+    className: "social-grid"
+  }, images.map((img, i) => /*#__PURE__*/React.createElement(Reveal, {
+    as: "div",
+    key: img.src,
+    delay: i * 60,
+    className: "social-item"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: img.src,
+    alt: img.alt,
+    loading: "lazy"
+  }))))));
 }
 function ShopMap() {
   return /*#__PURE__*/React.createElement("svg", {
@@ -510,8 +588,7 @@ function ShopMap() {
   }, "Rivington Rd"), /*#__PURE__*/React.createElement("text", {
     x: "128",
     y: "18",
-    className: "map-label",
-    transform: "rotate(0 128 18)"
+    className: "map-label"
   }, "Willow Street"), /*#__PURE__*/React.createElement("circle", {
     cx: "200",
     cy: "140",
@@ -545,14 +622,9 @@ function Visit() {
     className: "eyebrow"
   }, "Visit Us"), /*#__PURE__*/React.createElement("h2", {
     id: "visit-heading"
-  }, "Come sit with us"), /*#__PURE__*/React.createElement("div", {
+  }, "Come by."), /*#__PURE__*/React.createElement("div", {
     className: "visit-block"
-  }, /*#__PURE__*/React.createElement("h3", null, "Address"), /*#__PURE__*/React.createElement("p", null, "Morrow Coffee", /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE1, /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE2), /*#__PURE__*/React.createElement("a", {
-    className: "text-link",
-    href: MAPS_URL,
-    target: "_blank",
-    rel: "noopener noreferrer"
-  }, "Get directions \u2192")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h3", null, "Address"), /*#__PURE__*/React.createElement("p", null, "Morrow Coffee", /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE1, /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE2)), /*#__PURE__*/React.createElement("div", {
     className: "visit-block"
   }, /*#__PURE__*/React.createElement("h3", null, "Opening Hours"), /*#__PURE__*/React.createElement("dl", {
     className: "hours-list"
@@ -562,17 +634,199 @@ function Visit() {
     className: "hours-row"
   }, /*#__PURE__*/React.createElement("dt", null, "Saturday \u2013 Sunday"), /*#__PURE__*/React.createElement("dd", null, "8:00 AM \u2013 6:00 PM")))), /*#__PURE__*/React.createElement("div", {
     className: "visit-block"
-  }, /*#__PURE__*/React.createElement("h3", null, "Get in touch"), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React.createElement("h3", null, "Contact"), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("a", {
     className: "text-link",
     href: `tel:${PHONE_TEL}`
   }, PHONE_DISPLAY), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("a", {
     className: "text-link",
     href: `mailto:${EMAIL}`
-  }, EMAIL)))), /*#__PURE__*/React.createElement(Reveal, {
+  }, EMAIL))), /*#__PURE__*/React.createElement("div", {
+    className: "visit-actions"
+  }, /*#__PURE__*/React.createElement("a", {
+    className: "btn btn-primary",
+    href: MAPS_URL,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  }, "Get Directions"), /*#__PURE__*/React.createElement("a", {
+    className: "btn btn-secondary",
+    href: "#contact"
+  }, "Contact Us"))), /*#__PURE__*/React.createElement(Reveal, {
     as: "div",
     delay: 120,
     className: "map-wrap"
   }, /*#__PURE__*/React.createElement(ShopMap, null))));
+}
+function ContactForm() {
+  const [values, setValues] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleChange = field => e => {
+    setValues(v => ({
+      ...v,
+      [field]: e.target.value
+    }));
+  };
+  const validate = () => {
+    const next = {};
+    if (!values.name.trim()) next.name = "Please enter your name.";
+    if (!values.email.trim()) {
+      next.email = "Please enter your email.";
+    } else if (!emailPattern.test(values.email.trim())) {
+      next.email = "Please enter a valid email address.";
+    }
+    if (!values.message.trim()) next.message = "Please add a short message.";
+    return next;
+  };
+  const handleSubmit = e => {
+    e.preventDefault();
+    const next = validate();
+    setErrors(next);
+    if (Object.keys(next).length === 0) {
+      setSubmitted(true);
+    }
+  };
+  if (submitted) {
+    return /*#__PURE__*/React.createElement("section", {
+      id: "contact",
+      className: "section section-alt",
+      "aria-labelledby": "contact-heading"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "container contact-narrow"
+    }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("p", {
+      className: "eyebrow"
+    }, "Get in touch"), /*#__PURE__*/React.createElement("h2", {
+      id: "contact-heading"
+    }, "Thank you."), /*#__PURE__*/React.createElement("p", {
+      role: "status",
+      className: "form-success"
+    }, "Your message has been received in this demo. In a live version of this site, we'd reply from ", EMAIL, "."), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "btn btn-secondary",
+      onClick: () => {
+        setValues({
+          name: "",
+          email: "",
+          message: ""
+        });
+        setErrors({});
+        setSubmitted(false);
+      }
+    }, "Send another message"))));
+  }
+  return /*#__PURE__*/React.createElement("section", {
+    id: "contact",
+    className: "section section-alt",
+    "aria-labelledby": "contact-heading"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "container contact-narrow"
+  }, /*#__PURE__*/React.createElement(Reveal, null, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, "Get in touch"), /*#__PURE__*/React.createElement("h2", {
+    id: "contact-heading"
+  }, "Get in touch"), /*#__PURE__*/React.createElement("p", {
+    className: "contact-lede"
+  }, "Questions, feedback, or a private booking enquiry \u2014 send us a note and we'll get back to you.")), /*#__PURE__*/React.createElement(Reveal, {
+    delay: 100,
+    as: "form",
+    className: "contact-form",
+    onSubmit: handleSubmit,
+    noValidate: true
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-field"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "contact-name"
+  }, "Name"), /*#__PURE__*/React.createElement("input", {
+    id: "contact-name",
+    type: "text",
+    value: values.name,
+    onChange: handleChange("name"),
+    "aria-invalid": Boolean(errors.name),
+    "aria-describedby": errors.name ? "contact-name-error" : undefined
+  }), errors.name && /*#__PURE__*/React.createElement("span", {
+    id: "contact-name-error",
+    className: "form-error"
+  }, errors.name)), /*#__PURE__*/React.createElement("div", {
+    className: "form-field"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "contact-email"
+  }, "Email"), /*#__PURE__*/React.createElement("input", {
+    id: "contact-email",
+    type: "email",
+    value: values.email,
+    onChange: handleChange("email"),
+    "aria-invalid": Boolean(errors.email),
+    "aria-describedby": errors.email ? "contact-email-error" : undefined
+  }), errors.email && /*#__PURE__*/React.createElement("span", {
+    id: "contact-email-error",
+    className: "form-error"
+  }, errors.email)), /*#__PURE__*/React.createElement("div", {
+    className: "form-field"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "contact-message"
+  }, "Message"), /*#__PURE__*/React.createElement("textarea", {
+    id: "contact-message",
+    rows: 4,
+    value: values.message,
+    onChange: handleChange("message"),
+    "aria-invalid": Boolean(errors.message),
+    "aria-describedby": errors.message ? "contact-message-error" : undefined
+  }), errors.message && /*#__PURE__*/React.createElement("span", {
+    id: "contact-message-error",
+    className: "form-error"
+  }, errors.message)), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "btn btn-primary"
+  }, "Send Message"))));
+}
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!email.trim() || !emailPattern.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    setError("");
+    setSubscribed(true);
+  };
+  if (subscribed) {
+    return /*#__PURE__*/React.createElement("p", {
+      className: "newsletter-success",
+      role: "status"
+    }, "You're on the list \u2014 thanks for the demo signup.");
+  }
+  return /*#__PURE__*/React.createElement("form", {
+    className: "newsletter-form",
+    onSubmit: handleSubmit,
+    noValidate: true
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "newsletter-email",
+    className: "sr-only"
+  }, "Email address"), /*#__PURE__*/React.createElement("div", {
+    className: "newsletter-row"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "newsletter-email",
+    type: "email",
+    placeholder: "you@example.com",
+    value: email,
+    onChange: e => setEmail(e.target.value),
+    "aria-invalid": Boolean(error),
+    "aria-describedby": error ? "newsletter-error" : undefined
+  }), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "btn btn-secondary btn-small"
+  }, "Subscribe")), error && /*#__PURE__*/React.createElement("span", {
+    id: "newsletter-error",
+    className: "form-error"
+  }, error));
 }
 function Footer({
   onNavigate
@@ -585,7 +839,9 @@ function Footer({
     className: "footer-brand"
   }, /*#__PURE__*/React.createElement("p", {
     className: "logo logo-footer"
-  }, "MORROW"), /*#__PURE__*/React.createElement("p", null, ADDRESS_LINE1, /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE2), /*#__PURE__*/React.createElement("p", null, "Mon\u2013Fri 7:30 AM \u2013 5:00 PM", /*#__PURE__*/React.createElement("br", null), "Sat\u2013Sun 8:00 AM \u2013 6:00 PM")), /*#__PURE__*/React.createElement("div", {
+  }, "MORROW"), /*#__PURE__*/React.createElement("p", {
+    className: "footer-tagline"
+  }, "Good coffee. Slow mornings."), /*#__PURE__*/React.createElement("p", null, ADDRESS_LINE1, /*#__PURE__*/React.createElement("br", null), ADDRESS_LINE2), /*#__PURE__*/React.createElement("p", null, "Mon\u2013Fri \xB7 7:30\u201317:00", /*#__PURE__*/React.createElement("br", null), "Sat\u2013Sun \xB7 8:00\u201318:00")), /*#__PURE__*/React.createElement("div", {
     className: "footer-nav"
   }, /*#__PURE__*/React.createElement("h3", null, "Explore"), /*#__PURE__*/React.createElement("nav", {
     "aria-label": "Footer"
@@ -609,11 +865,15 @@ function Footer({
     href: INSTAGRAM_URL,
     target: "_blank",
     rel: "noopener noreferrer"
-  }, "@morrowcoffee \u2197"))), /*#__PURE__*/React.createElement("div", {
+  }, "Instagram \u2197")), /*#__PURE__*/React.createElement("div", {
+    className: "footer-newsletter"
+  }, /*#__PURE__*/React.createElement("h3", null, "Occasional notes from Morrow"), /*#__PURE__*/React.createElement(NewsletterForm, null))), /*#__PURE__*/React.createElement("div", {
     className: "footer-bottom"
   }, /*#__PURE__*/React.createElement("div", {
     className: "container footer-bottom-inner"
-  }, /*#__PURE__*/React.createElement("p", null, "\xA9 ", new Date().getFullYear(), " Morrow Coffee. All rights reserved."), /*#__PURE__*/React.createElement("p", null, "Made with care on Willow Street, London."))));
+  }, /*#__PURE__*/React.createElement("p", null, "\xA9 2026 Morrow Coffee. All rights reserved."), /*#__PURE__*/React.createElement("p", {
+    className: "footer-demo-note"
+  }, "Demo project \u2014 Morrow Coffee is a fictional brand built for portfolio purposes."))));
 }
 function OrderModal({
   itemName,
@@ -671,14 +931,33 @@ function App() {
   const [orderItem, setOrderItem] = useState(null);
   const [orderOpen, setOrderOpen] = useState(false);
   useEffect(() => {
-    document.title = "Morrow Coffee — Specialty Coffee Shop in London";
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      document.head.appendChild(meta);
+    document.title = "Morrow Coffee | Specialty Coffee in London";
+    const description = "Morrow Coffee is a modern specialty coffee shop in London serving carefully sourced coffee, seasonal drinks, and simple food in a warm neighborhood setting.";
+    const setMeta = (attr, key, content) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", "Morrow Coffee | Specialty Coffee in London");
+    setMeta("property", "og:description", description);
+    setMeta("property", "og:type", "website");
+    setMeta("property", "og:url", SITE_URL);
+    setMeta("property", "og:image", "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80");
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", "Morrow Coffee | Specialty Coffee in London");
+    setMeta("name", "twitter:description", description);
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
     }
-    meta.setAttribute("content", "Morrow Coffee is a specialty coffee shop on Willow Street, London, serving carefully sourced espresso, filter coffee, matcha and simple seasonal food. Good coffee. Slow mornings.");
+    canonical.setAttribute("href", SITE_URL);
   }, []);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -721,11 +1000,11 @@ function App() {
     id: "main"
   }, /*#__PURE__*/React.createElement(Hero, {
     onNavigate: navigate
-  }), /*#__PURE__*/React.createElement(FeaturedMenu, {
+  }), /*#__PURE__*/React.createElement(BrandStatement, null), /*#__PURE__*/React.createElement(FeaturedMenu, {
     onOrder: openOrder
-  }), /*#__PURE__*/React.createElement(About, null), /*#__PURE__*/React.createElement(SignatureDrink, {
+  }), /*#__PURE__*/React.createElement(About, null), /*#__PURE__*/React.createElement(OurCoffee, null), /*#__PURE__*/React.createElement(SignatureDrink, {
     onOrder: openOrder
-  }), /*#__PURE__*/React.createElement(Gallery, null), /*#__PURE__*/React.createElement(Testimonials, null), /*#__PURE__*/React.createElement(Visit, null)), /*#__PURE__*/React.createElement(Footer, {
+  }), /*#__PURE__*/React.createElement(Gallery, null), /*#__PURE__*/React.createElement(Testimonials, null), /*#__PURE__*/React.createElement(InstagramSection, null), /*#__PURE__*/React.createElement(Visit, null), /*#__PURE__*/React.createElement(ContactForm, null)), /*#__PURE__*/React.createElement(Footer, {
     onNavigate: navigate
   }), orderOpen && /*#__PURE__*/React.createElement(OrderModal, {
     itemName: orderItem,
@@ -745,6 +1024,7 @@ function GlobalStyles() {
         --sage-dark: #565f4d;
         --line: rgba(58, 42, 30, 0.14);
         --line-light: rgba(246, 241, 230, 0.28);
+        --error: #a3402f;
         --font-display: 'Fraunces', Georgia, serif;
         --font-sans: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         --header-h: 84px;
@@ -756,19 +1036,26 @@ function GlobalStyles() {
         color: var(--espresso);
         background: var(--cream);
         -webkit-font-smoothing: antialiased;
-        line-height: 1.6;
+        line-height: 1.65;
+        font-size: 16px;
       }
       .morrow-app img { max-width: 100%; display: block; }
       .morrow-app h1, .morrow-app h2, .morrow-app h3 {
         font-family: var(--font-display);
         font-weight: 500;
-        line-height: 1.12;
+        line-height: 1.15;
         margin: 0 0 0.5em 0;
         color: var(--espresso);
       }
-      .morrow-app p { margin: 0 0 1em 0; color: rgba(58,42,30,0.82); }
+      .morrow-app p { margin: 0 0 1em 0; color: rgba(58,42,30,0.82); max-width: 62ch; }
       .morrow-app a { color: inherit; text-decoration: none; }
       .morrow-app button { font-family: inherit; }
+      .morrow-app label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.4rem; }
+
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+      }
 
       .skip-link {
         position: absolute; left: -9999px; top: 0; z-index: 200;
@@ -801,7 +1088,7 @@ function GlobalStyles() {
       .section-alt { background: var(--cream-deep); }
       .section h2 { font-size: clamp(2rem, 3.4vw, 2.75rem); max-width: 30ch; }
 
-      #home, #menu, #about, #visit { scroll-margin-top: var(--header-h); }
+      #home, #menu, #about, #visit, #contact { scroll-margin-top: var(--header-h); }
 
       .reveal {
         opacity: 0;
@@ -827,6 +1114,7 @@ function GlobalStyles() {
         cursor: pointer;
         transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
         white-space: nowrap;
+        min-height: 44px;
       }
       .btn-primary { background: var(--espresso); color: var(--cream); border-color: var(--espresso); }
       .btn-primary:hover { background: var(--charcoal); border-color: var(--charcoal); }
@@ -836,17 +1124,17 @@ function GlobalStyles() {
       .btn-light:hover { background: transparent; color: var(--cream); border-color: var(--cream); }
       .btn-ghost-light { background: transparent; color: var(--cream); border-color: rgba(246,241,230,0.55); }
       .btn-ghost-light:hover { background: rgba(246,241,230,0.12); border-color: var(--cream); }
-      .btn-small { padding: 0.68rem 1.35rem; font-size: 0.72rem; }
+      .btn-small { padding: 0.68rem 1.35rem; font-size: 0.72rem; min-height: 40px; }
 
       .site-header {
         position: fixed; top: 0; left: 0; right: 0; z-index: 100;
         background: transparent;
-        transition: background-color 0.35s ease, box-shadow 0.35s ease, border-color .35s ease;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color .3s ease;
         border-bottom: 1px solid transparent;
       }
       .site-header.is-scrolled, .site-header.nav-open {
-        background: rgba(246,241,230,0.96);
-        backdrop-filter: blur(6px);
+        background: rgba(246,241,230,0.97);
+        backdrop-filter: blur(8px);
         border-bottom-color: var(--line);
       }
       .header-inner {
@@ -859,14 +1147,14 @@ function GlobalStyles() {
         font-size: 1.35rem;
         letter-spacing: 0.16em;
         color: var(--cream);
-        transition: color 0.35s ease;
+        transition: color 0.3s ease;
       }
       .is-scrolled .logo, .nav-open .logo { color: var(--espresso); }
       .primary-nav { display: flex; gap: 2.25rem; }
       .primary-nav a {
         font-size: 0.86rem; font-weight: 500; letter-spacing: 0.02em;
         color: var(--cream); position: relative; padding: 0.3rem 0;
-        transition: color 0.35s ease;
+        transition: color 0.3s ease;
       }
       .is-scrolled .primary-nav a, .nav-open .primary-nav a { color: var(--espresso); }
       .primary-nav a::after {
@@ -886,11 +1174,11 @@ function GlobalStyles() {
 
       .hamburger {
         display: none; flex-direction: column; justify-content: center; gap: 5px;
-        width: 34px; height: 34px; background: none; border: none; cursor: pointer; padding: 0;
+        width: 44px; height: 44px; background: none; border: none; cursor: pointer; padding: 0;
       }
       .hamburger span {
-        display: block; height: 1.5px; width: 100%; background: var(--cream);
-        transition: background-color 0.35s ease, transform 0.3s ease, opacity 0.3s ease;
+        display: block; height: 1.5px; width: 22px; margin: 0 auto; background: var(--cream);
+        transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
       }
       .is-scrolled .hamburger span, .nav-open .hamburger span { background: var(--espresso); }
       .hamburger.is-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
@@ -908,8 +1196,8 @@ function GlobalStyles() {
         z-index: 99;
       }
       .mobile-nav.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-      .mobile-nav nav { display: flex; flex-direction: column; gap: 1.4rem; }
-      .mobile-nav a { font-family: var(--font-display); font-size: 2rem; }
+      .mobile-nav nav { display: flex; flex-direction: column; gap: 1.5rem; }
+      .mobile-nav a { font-family: var(--font-display); font-size: 2rem; display: block; padding: 0.25rem 0; }
 
       .hero {
         position: relative; min-height: 100vh; display: flex; align-items: flex-end;
@@ -919,7 +1207,7 @@ function GlobalStyles() {
       .hero-media img { width: 100%; height: 100%; object-fit: cover; }
       .hero-overlay {
         position: absolute; inset: 0;
-        background: linear-gradient(180deg, rgba(33,29,25,0.35) 0%, rgba(33,29,25,0.32) 45%, rgba(33,29,25,0.82) 100%);
+        background: linear-gradient(180deg, rgba(33,29,25,0.35) 0%, rgba(33,29,25,0.32) 45%, rgba(33,29,25,0.84) 100%);
       }
       .hero-content {
         position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; width: 100%;
@@ -931,17 +1219,14 @@ function GlobalStyles() {
         font-weight: 400;
         max-width: 14ch;
       }
-      .hero-lede { color: rgba(246,241,230,0.88); max-width: 46ch; font-size: 1.05rem; margin-bottom: 2.2rem; }
+      .hero-lede { color: rgba(246,241,230,0.9); max-width: 42ch; font-size: 1.1rem; margin-bottom: 2.2rem; }
       .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
 
       .scroll-cue {
         position: absolute; right: 2.25rem; bottom: 2.25rem; z-index: 2;
         width: 1px; height: 64px; background: none; border: none; cursor: pointer; padding: 0;
       }
-      .scroll-cue-line {
-        display: block; width: 1px; height: 100%; background: rgba(246,241,230,0.55);
-        position: relative;
-      }
+      .scroll-cue-line { display: block; width: 1px; height: 100%; background: rgba(246,241,230,0.55); position: relative; }
       .scroll-cue-line::after {
         content: ''; position: absolute; top: 0; left: -2px; width: 5px; height: 5px;
         border-radius: 50%; background: var(--cream);
@@ -950,11 +1235,16 @@ function GlobalStyles() {
       @keyframes cueMove { 0%{top:0; opacity:1;} 90%{opacity:1;} 100%{top:90%; opacity:0;} }
       @media (prefers-reduced-motion: reduce) { .scroll-cue-line::after { animation: none; top: 40%; } }
 
+      /* brand statement */
+      .brand-statement { padding: 6rem 0; background: var(--cream); }
+      .brand-statement-inner { max-width: 720px; text-align: center; margin: 0 auto; }
+      .brand-statement h2 { font-size: clamp(1.9rem, 3.2vw, 2.5rem); }
+      .brand-statement p { margin: 0 auto; font-size: 1.05rem; }
+
       .menu-tabs {
         display: flex; flex-wrap: wrap; gap: 0.5rem 2rem;
         border-bottom: 1px solid var(--line);
         margin: 2.5rem 0 0;
-        padding-bottom: 0;
       }
       .menu-tab {
         background: none; border: none; cursor: pointer;
@@ -962,6 +1252,7 @@ function GlobalStyles() {
         letter-spacing: 0.03em; color: rgba(58,42,30,0.55);
         border-bottom: 2px solid transparent; margin-bottom: -1px;
         transition: color 0.2s ease, border-color 0.2s ease;
+        min-height: 44px;
       }
       .menu-tab:hover { color: var(--espresso); }
       .menu-tab.is-active { color: var(--espresso); border-bottom-color: var(--sage); }
@@ -975,34 +1266,42 @@ function GlobalStyles() {
       }
       .menu-row:last-child { border-bottom: 1px solid var(--line); }
       .menu-row-text h3 { font-size: 1.2rem; margin-bottom: 0.25rem; }
-      .menu-row-text p { margin: 0; font-size: 0.93rem; max-width: 46ch; }
-      .menu-row-right {
-        display: flex; align-items: center; gap: 1.1rem; flex-shrink: 0; padding-top: 0.15rem;
-      }
-      .menu-price {
-        font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums;
-      }
+      .menu-row-text p { margin: 0; font-size: 0.95rem; max-width: 46ch; }
+      .menu-row-right { display: flex; align-items: center; gap: 1.1rem; flex-shrink: 0; padding-top: 0.15rem; }
+      .menu-price { font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
       .menu-order-link {
         background: none; border: 1px solid var(--line); cursor: pointer;
         font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
-        padding: 0.45rem 0.85rem; color: var(--sage-dark);
+        padding: 0.45rem 0.85rem; color: var(--sage-dark); min-height: 36px;
         transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
       }
       .menu-order-link:hover { background: var(--espresso); border-color: var(--espresso); color: var(--cream); }
 
-      .about-grid {
-        display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 4.5rem; align-items: center;
-      }
+      .about-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 4.5rem; align-items: center; }
       .about-media img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5; }
-      .about-text p:last-child { margin-bottom: 0; }
+      .about-text p:last-of-type { margin-bottom: 1.5rem; }
+      .about-detail-list {
+        display: flex; flex-wrap: wrap; gap: 0 1.75rem; list-style: none; margin: 0; padding: 1.25rem 0 0;
+        border-top: 1px solid var(--line);
+      }
+      .about-detail-list li {
+        font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+        color: var(--sage-dark); padding: 0.4rem 0;
+      }
+
+      /* our coffee / process */
+      .process { padding: 6.5rem 0; background: var(--cream); }
+      .process-grid { margin-top: 3rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+      .process-step { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+      .process-num { font-family: var(--font-display); font-size: 0.95rem; color: var(--sage-dark); }
+      .process-step h3 { font-size: 1.3rem; margin-top: 0.5rem; }
+      .process-step p { font-size: 0.95rem; }
 
       .signature { background: var(--charcoal); padding: 6.5rem 0; }
-      .signature-grid {
-        display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 4.5rem; align-items: center;
-      }
+      .signature-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 4.5rem; align-items: center; }
       .signature h2 { color: var(--cream); font-size: clamp(2.25rem, 4vw, 3.4rem); }
       .signature-text p { color: rgba(246,241,230,0.78); max-width: 42ch; }
-      .signature-price-row { display: flex; align-items: center; gap: 1.75rem; margin-top: 1.5rem; }
+      .signature-price-row { display: flex; align-items: center; gap: 1.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
       .signature-price { font-family: var(--font-display); font-size: 1.6rem; color: var(--cream); }
       .signature-media img { width: 100%; aspect-ratio: 5/4; object-fit: cover; }
 
@@ -1011,19 +1310,18 @@ function GlobalStyles() {
         display: grid; grid-template-columns: repeat(4, 1fr);
         grid-auto-rows: 190px; gap: 0.85rem;
       }
-      .gallery-item { overflow: hidden; }
-      .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-      .gallery-item:hover img { transform: scale(1.04); }
+      .gallery-item, .social-item { overflow: hidden; }
+      .gallery-item img, .social-item img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.6s ease, opacity 0.3s ease;
+      }
+      .gallery-item:hover img, .social-item:hover img { transform: scale(1.045); opacity: 0.92; }
       .gallery-tall { grid-row: span 2; }
       .gallery-wide { grid-column: span 2; }
-      @media (prefers-reduced-motion: reduce) { .gallery-item img { transition: none; } }
+      @media (prefers-reduced-motion: reduce) { .gallery-item img, .social-item img { transition: none; } }
 
-      .testimonial-grid {
-        margin-top: 2.75rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem;
-      }
-      .testimonial-card {
-        border-top: 2px solid var(--sage); padding-top: 1.5rem;
-      }
+      .testimonial-grid { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+      .testimonial-card { border-top: 2px solid var(--sage); padding-top: 1.5rem; }
       .testimonial-card blockquote {
         margin: 0 0 1.5rem 0; font-family: var(--font-display); font-size: 1.2rem;
         font-weight: 400; line-height: 1.45; color: var(--espresso);
@@ -1031,6 +1329,13 @@ function GlobalStyles() {
       .testimonial-card figcaption { display: flex; flex-direction: column; font-size: 0.85rem; }
       .testimonial-name { font-weight: 600; }
       .testimonial-meta { color: rgba(58,42,30,0.55); }
+
+      /* social / instagram */
+      .social { padding: 6.5rem 0; background: var(--cream-deep); }
+      .social-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; }
+      .social-header h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.4rem); }
+      .social-grid { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; }
+      .social-item img { aspect-ratio: 1/1; }
 
       .visit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: start; }
       .visit-block { margin-top: 2rem; }
@@ -1044,6 +1349,7 @@ function GlobalStyles() {
       .hours-row:last-child { border-bottom: 1px solid var(--line); }
       .hours-row dt, .hours-row dd { margin: 0; font-size: 0.95rem; }
       .hours-row dd { color: rgba(58,42,30,0.82); }
+      .visit-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2.25rem; }
       .text-link { color: var(--sage-dark); font-weight: 600; font-size: 0.92rem; border-bottom: 1px solid transparent; transition: border-color 0.2s ease; }
       .text-link:hover { border-color: var(--sage-dark); }
       .map-wrap { border: 1px solid var(--line); }
@@ -1051,14 +1357,43 @@ function GlobalStyles() {
       .map-label { font-family: var(--font-sans); font-size: 10px; fill: rgba(58,42,30,0.55); letter-spacing: 0.04em; }
       .map-pin-label { font-family: var(--font-display); font-size: 13px; fill: var(--espresso); }
 
+      /* contact form */
+      .contact-narrow { max-width: 640px; }
+      .contact-lede { font-size: 1rem; }
+      .contact-form { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+      .form-field { display: flex; flex-direction: column; }
+      .form-field input, .form-field textarea {
+        font-family: var(--font-sans); font-size: 1rem; padding: 0.85rem 1rem;
+        border: 1px solid var(--line); background: var(--cream); color: var(--espresso);
+        resize: vertical;
+      }
+      .form-field input:focus, .form-field textarea:focus { border-color: var(--sage-dark); }
+      .form-field input[aria-invalid="true"], .form-field textarea[aria-invalid="true"] { border-color: var(--error); }
+      .form-error { color: var(--error); font-size: 0.82rem; margin-top: 0.4rem; }
+      .form-success { font-size: 1.05rem; max-width: 52ch; }
+      .contact-form .btn { align-self: flex-start; }
+
+      /* newsletter */
+      .newsletter-row { display: flex; gap: 0.6rem; }
+      .newsletter-row input {
+        flex: 1; min-width: 0; font-family: var(--font-sans); font-size: 0.9rem;
+        padding: 0.7rem 0.9rem; border: 1px solid var(--line-light); background: rgba(246,241,230,0.06);
+        color: var(--cream);
+      }
+      .newsletter-row input::placeholder { color: rgba(246,241,230,0.45); }
+      .newsletter-row .btn { flex-shrink: 0; }
+      .footer-newsletter .form-error { color: #e2a08f; }
+      .newsletter-success { font-size: 0.9rem; color: rgba(246,241,230,0.85); max-width: 30ch; }
+
       .site-footer { background: var(--charcoal); color: rgba(246,241,230,0.82); padding-top: 5rem; }
       .footer-grid {
-        display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 3rem; padding-bottom: 3.5rem;
+        display: grid; grid-template-columns: 1.3fr 0.8fr 0.9fr 1fr; gap: 3rem; padding-bottom: 3.5rem;
         border-bottom: 1px solid var(--line-light);
       }
       .footer-brand p { color: rgba(246,241,230,0.72); font-size: 0.9rem; }
-      .logo-footer { color: var(--cream); font-size: 1.3rem; letter-spacing: 0.16em; margin-bottom: 1.1rem; }
-      .footer-nav h3, .footer-contact h3 {
+      .footer-tagline { font-family: var(--font-display); font-size: 1.05rem; color: rgba(246,241,230,0.9); }
+      .logo-footer { color: var(--cream); font-size: 1.3rem; letter-spacing: 0.16em; margin-bottom: 0.6rem; }
+      .footer-nav h3, .footer-contact h3, .footer-newsletter h3 {
         font-family: var(--font-sans); font-size: 0.75rem; text-transform: uppercase;
         letter-spacing: 0.1em; color: rgba(246,241,230,0.55); margin-bottom: 1.1rem; font-weight: 700;
       }
@@ -1069,6 +1404,7 @@ function GlobalStyles() {
         display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
         padding: 1.75rem 0; font-size: 0.8rem; color: rgba(246,241,230,0.55);
       }
+      .footer-demo-note { font-style: italic; }
 
       .modal-backdrop {
         position: fixed; inset: 0; background: rgba(33,29,25,0.6); z-index: 200;
@@ -1081,7 +1417,7 @@ function GlobalStyles() {
       .modal-close {
         position: absolute; top: 0.9rem; right: 1rem; background: none; border: none;
         font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--espresso);
-        width: 36px; height: 36px;
+        width: 44px; height: 44px;
       }
       .modal h3 { font-size: 1.6rem; }
       .modal-actions { display: flex; gap: 0.9rem; flex-wrap: wrap; margin: 1.5rem 0 1rem; }
@@ -1091,9 +1427,12 @@ function GlobalStyles() {
         .about-grid, .signature-grid, .visit-grid { grid-template-columns: 1fr; gap: 2.75rem; }
         .about-media, .signature-media { order: -1; }
         .about-media img, .signature-media img { aspect-ratio: 16/10; }
+        .process-grid { grid-template-columns: 1fr; gap: 2rem; }
         .testimonial-grid { grid-template-columns: 1fr 1fr; }
         .footer-grid { grid-template-columns: 1fr 1fr; }
         .footer-brand { grid-column: span 2; }
+        .footer-newsletter { grid-column: span 2; }
+        .social-grid { grid-template-columns: repeat(4, 1fr); }
       }
 
       @media (max-width: 860px) {
@@ -1101,15 +1440,18 @@ function GlobalStyles() {
         .header-actions .btn-primary.btn-small { display: none; }
         .hamburger { display: flex; }
         .section { padding: 4.5rem 0; }
+        .brand-statement, .process, .social { padding: 4.5rem 0; }
         .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 160px; }
         .gallery-wide { grid-column: span 2; }
+        .social-grid { grid-template-columns: repeat(2, 1fr); }
       }
 
       @media (max-width: 640px) {
         .header-inner { padding: 0 1.25rem; }
         .container { padding: 0 1.25rem; }
         .hero-content { padding: 0 1.25rem 4rem; }
-        .hero h1 { max-width: 100%; }
+        .hero h1 { max-width: 100%; font-size: clamp(2.35rem, 9vw, 3.2rem); }
+        .hero-lede { font-size: 1rem; }
         .hero-actions { width: 100%; }
         .hero-actions .btn { flex: 1; }
         .scroll-cue { display: none; }
@@ -1117,11 +1459,14 @@ function GlobalStyles() {
         .menu-row-right { padding-top: 0; }
         .testimonial-grid { grid-template-columns: 1fr; }
         .footer-grid { grid-template-columns: 1fr; }
-        .footer-brand { grid-column: span 1; }
+        .footer-brand, .footer-newsletter { grid-column: span 1; }
         .modal-actions .btn { flex: 1; }
+        .visit-actions { flex-direction: column; }
+        .visit-actions .btn { width: 100%; }
+        .social-header { flex-direction: column; align-items: flex-start; }
+        .newsletter-row { flex-direction: column; }
       }
     `);
 }
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(React.createElement(App));
